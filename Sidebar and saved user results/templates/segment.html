@@ -1,0 +1,793 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+    <title>{{ title }} - Risk Assessment</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="icon" href="{{ url_for('static', filename='favicon.ico') }}" type="image/x-icon">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400..700;1,400..700&family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="icon" href="{{ url_for('static', filename='favicon.ico') }}" type="image/x-icon">
+    
+    <!-- Add CryptoJS for local storage encryption -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+</head>
+<body class="segment-body segment-{{ segment_id }}">
+
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <h3>Risk Assessment</h3>
+            <button class="close-btn">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <ul class="sidebar-menu">
+            <li>
+                <a href="{{ url_for('navigate', target='segment_1') }}">
+                    <i class="fas fa-clipboard-list"></i>
+                    <span>Criminal History</span>
+                </a>
+            </li>
+            <li>
+                <a href="{{ url_for('navigate', target='segment_2') }}">
+                    <i class="fas fa-clipboard-list"></i>
+                    <span>Pro-Criminal Companions</span>
+                </a>
+            </li>
+            <li>
+                <a href="{{ url_for('navigate', target='segment_3') }}">
+                    <i class="fas fa-clipboard-list"></i>
+                    <span>Pro-Criminal Attitudes & Cognitions</span>
+                </a>
+            </li>
+            <li>
+                <a href="{{ url_for('navigate', target='segment_4') }}">
+                    <i class="fas fa-clipboard-list"></i>
+                    <span>Anti-Social Personality Patterns</span>
+                </a>
+            </li>
+            <li>
+                <a href="{{ url_for('navigate', target='segment_5') }}">
+                    <i class="fas fa-clipboard-list"></i>
+                    <span>Education And Employment</span>
+                </a>
+            </li>
+            <li>
+                <a href="{{ url_for('navigate', target='segment_6') }}">
+                    <i class="fas fa-clipboard-list"></i>
+                    <span>Family And Marital Status</span>
+                </a>
+            </li>
+            <li>
+                <a href="{{ url_for('navigate', target='segment_7') }}">
+                    <i class="fas fa-clipboard-list"></i>
+                    <span>Substance Abuse</span>
+                </a>
+            </li>
+            <li>
+                <a href="{{ url_for('navigate', target='segment_8') }}">
+                    <i class="fas fa-clipboard-list"></i>
+                    <span>Mental Health</span>
+                </a>
+            </li>
+            <li id="results-link" style="display: none;">
+                <a href="{{ url_for('navigate', target='results') }}">
+                    <i class="fas fa-chart-bar"></i>
+                    <span>Results</span>
+                </a>
+            </li>
+        </ul>
+    </div>
+
+    <button class="sidebar-toggle">
+        <i class="fas fa-bars"></i>
+    </button>
+
+    <!-- Overlay - added to fix blur issue -->
+    <div class="overlay"></div>
+
+    <div class="container">
+        <h1>{{ title }}</h1>
+        <p>Part {{ segment_id }} of 8</p>
+        
+        <form action="{{ url_for('segment', segment_id=segment_id) }}" method="post" id="questionForm" novalidate>
+            <!-- Add hidden token field -->
+            <input type="hidden" name="token" value="{{ token }}">
+            
+            {% if segment_id %}
+                {% if segment_id|int > 0 and segment_id|int <= 8 %}
+                    {% if segment_id == 1 %}
+                        {# Criminal History #}
+                        <div class="question" id="seg1_q1">
+                            <h3>1. Age at First Misconduct</h3>
+                            <div class="options">
+                                <div class="option">
+                                    <input type="radio" id="seg1_q1_0" name="seg1_q1" value="0" required>
+                                    <label for="seg1_q1_0">26 years old and above <em>(0 points)</em></label>
+                                </div>
+                                <div class="option">
+                                    <input type="radio" id="seg1_q1_1" name="seg1_q1" value="1">
+                                    <label for="seg1_q1_1">18-25 years old <em>(1 point)</em></label>
+                                </div>
+                                <div class="option">
+                                    <input type="radio" id="seg1_q1_2" name="seg1_q1" value="2">
+                                    <label for="seg1_q1_2">17 years old and below <em>(2 points)</em></label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="question" id="seg1_q2">
+                            <h3>2. Number of Previous Misconduct(s)</h3>
+                            <div class="options">
+                                <div class="option">
+                                    <input type="radio" id="seg1_q2_0" name="seg1_q2" value="0" required>
+                                    <label for="seg1_q2_0">No Misconduct <em>(0 points)</em></label>
+                                </div>
+                                <div class="option">
+                                    <input type="radio" id="seg1_q2_1" name="seg1_q2" value="1">
+                                    <label for="seg1_q2_1">1 Misconduct <em>(1 point)</em></label>
+                                </div>
+                                <div class="option">
+                                    <input type="radio" id="seg1_q2_2" name="seg1_q2" value="2">
+                                    <label for="seg1_q2_2">2 or more misconducts <em>(2 points)</em></label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="question" id="seg1_q3">
+                            <h3>3. Extent of Involvement in Organized Crimes</h3>
+                            <div class="options">
+                                <div class="option">
+                                    <input type="radio" id="seg1_q3_0" name="seg1_q3" value="0" required>
+                                    <label for="seg1_q3_0">Not a Member <em>(0 points)</em></label>
+                                </div>
+                                <div class="option">
+                                    <input type="radio" id="seg1_q3_1" name="seg1_q3" value="1">
+                                    <label for="seg1_q3_1">Member but Inactive <em>(1 point)</em></label>
+                                </div>
+                                <div class="option">
+                                    <input type="radio" id="seg1_q3_2" name="seg1_q3" value="2">
+                                    <label for="seg1_q3_2">Active membership <em>(2 points)</em></label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="question" id="seg1_q4">
+                            <h3>4. Derogatory Record</h3>
+                            <div class="options">
+                                <div class="option">
+                                    <input type="radio" id="seg1_q4_0" name="seg1_q4" value="0" required>
+                                    <label for="seg1_q4_0">No Record <em>(0 points)</em></label>
+                                </div>
+                                <div class="option">
+                                    <input type="radio" id="seg1_q4_1" name="seg1_q4" value="1">
+                                    <label for="seg1_q4_1">With 1 Record <em>(1 point)</em></label>
+                                </div>
+                                <div class="option">
+                                    <input type="radio" id="seg1_q4_2" name="seg1_q4" value="2">
+                                    <label for="seg1_q4_2">With 2 or More Records <em>(2 points)</em></label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="question" id="seg1_q5">
+                            <h3>5. Type of Offender</h3>
+                            <div class="options">
+                                <div class="option">
+                                    <input type="radio" id="seg1_q5_0" name="seg1_q5" value="0" required>
+                                    <label for="seg1_q5_0">Situational/Circumstantial <em>(0 points)</em></label>
+                                </div>
+                                <div class="option">
+                                    <input type="radio" id="seg1_q5_1" name="seg1_q5" value="1">
+                                    <label for="seg1_q5_1">"Paminsan-minsan" <em>(1 point)</em></label>
+                                </div>
+                                <div class="option">
+                                    <input type="radio" id="seg1_q5_2" name="seg1_q5" value="2">
+                                    <label for="seg1_q5_2">Career Offender <em>(2 points)</em></label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="question" id="seg1_q6">
+                            <h3>6. History of Violence</h3>
+                            <div class="options">
+                                <div class="option">
+                                    <input type="radio" id="seg1_q6_0" name="seg1_q6" value="0" required>
+                                    <label for="seg1_q6_0">No History of violence <em>(0 points)</em></label>
+                                </div>
+                                <div class="option">
+                                    <input type="radio" id="seg1_q6_1" name="seg1_q6" value="1">
+                                    <label for="seg1_q6_1">1 Incident of violence <em>(1 point)</em></label>
+                                </div>
+                                <div class="option">
+                                    <input type="radio" id="seg1_q6_2" name="seg1_q6" value="2">
+                                    <label for="seg1_q6_2">2 or more history of violence <em>(2 points)</em></label>
+                                </div>
+                            </div>
+                        </div>
+                    {% elif segment_id == 2 %}
+                        {# Pro-Criminal Companions  #}
+                        <div class="question" id="seg2_q1">
+                            <h3>1. Type of Companions</h3>
+                            <div class="options">
+                                <div class="option">
+                                    <input type="radio" id="seg2_q1_0" name="seg2_q1" value="0" required>
+                                    <label for="seg2_q1_0">Mostly conventional <em>(0 points)</em></label>
+                                </div>
+                                <div class="option">
+                                    <input type="radio" id="seg2_q1_1" name="seg2_q1" value="1">
+                                    <label for="seg2_q1_1">Sometimes conventional, Sometimes delinquent<em>(1 point)</em></label>
+                                </div>
+                                <div class="option">
+                                    <input type="radio" id="seg2_q1_2" name="seg2_q1" value="2">
+                                    <label for="seg2_q1_2">Mostly delinquent <em>(2 points)</em></label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="question" id="seg2_q2">
+                            <h3>2. Type of Activities with Companions</h3>
+                            <div class="options">
+                                <div class="option">
+                                    <input type="radio" id="seg2_q2_0" name="seg2_q2" value="0" required>
+                                    <label for="seg2_q2_0">Mostly conventional <em>(0 points)</em></label>
+                                </div>
+                                <div class="option">
+                                    <input type="radio" id="seg2_q2_1" name="seg2_q2" value="1">
+                                    <label for="seg2_q2_1">Sometimes conventional, Sometimes delinquent<em>(1 point)</em></label>
+                                </div>
+                                <div class="option">
+                                    <input type="radio" id="seg2_q2_2" name="seg2_q2" value="2">
+                                    <label for="seg2_q2_2">Mostly delinquent <em>(2 points)</em></label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="question" id="seg2_q3">
+                            <h3>3. Friends' Support</h3>
+                            <div class="options">
+                                <div class="option">
+                                    <input type="radio" id="seg2_q3_0" name="seg2_q3" value="0" required>
+                                    <label for="seg2_q3_0">Mostly supportive friends <em>(0 points)</em></label>
+                                </div>
+                                <div class="option">
+                                    <input type="radio" id="seg2_q3_1" name="seg2_q3" value="1">
+                                    <label for="seg2_q3_1">Few supportive friends<em>(1 point)</em></label>
+                                </div>
+                                <div class="option">
+                                    <input type="radio" id="seg2_q3_2" name="seg2_q3" value="2">
+                                    <label for="seg2_q3_2">No supportive friends <em>(2 points)</em></label>
+                                </div>
+                            </div>
+                        </div>    
+                    {% elif segment_id == 3 %}
+                        {# Pro-Criminal Attitudes and Cognitions  #}
+                        <div class="question" id="seg3_q1">
+                            <h3>1. Is it okay to break the rules/laws as long as I can help my family</h3>
+                            <div class="options">
+                                <div class="option">
+                                    <input type="radio" id="seg3_q1_0" name="seg3_q1" value="0" required>
+                                    <label for="seg3_q1_0">NO <em>(0 points)</em></label>
+                                </div>
+                                <div class="option">
+                                    <input type="radio" id="seg3_q1_1" name="seg3_q1" value="2">
+                                    <label for="seg3_q1_1">YES <em>(2 points)</em></label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="question" id="seg3_q2">
+                            <h3>2. Is it okay to break the rules/laws because I don't know it</h3>
+                            <div class="options">
+                                <div class="option">
+                                    <input type="radio" id="seg3_q2_0" name="seg3_q2" value="0" required>
+                                    <label for="seg3_q2_0">NO <em>(0 points)</em></label>
+                                </div>
+                                <div class="option">
+                                    <input type="radio" id="seg3_q2_1" name="seg3_q2" value="2">
+                                    <label for="seg3_q2_1">YES <em>(2 points)</em></label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="question" id="seg3_q3">
+                            <h3>3. Is it okay to break the rules/laws when nobody sees me or I don't get caught</h3>
+                            <div class="options">
+                                <div class="option">
+                                    <input type="radio" id="seg3_q3_0" name="seg3_q3" value="0" required>
+                                    <label for="seg3_q3_0">NO <em>(0 points)</em></label>
+                                </div>
+                                <div class="option">
+                                    <input type="radio" id="seg3_q3_1" name="seg3_q3" value="2">
+                                    <label for="seg3_q3_1">YES  <em>(2 points)</em></label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="question" id="seg3_q4">
+                            <h3>4. Is it okay to commit a crime if you are a victim of social injustice/inequality</h3>
+                            <div class="options">
+                                <div class="option">
+                                    <input type="radio" id="seg3_q4_0" name="seg3_q4" value="0" required>
+                                    <label for="seg3_q4_0">NO <em>(0 points)</em></label>
+                                </div>
+                                <div class="option">
+                                    <input type="radio" id="seg3_q4_1" name="seg3_q4" value="2">
+                                    <label for="seg3_q4_1">YES  <em>(2 points)</em></label>
+                                </div>
+                            </div>
+                        </div>  
+                        <div class="question" id="seg3_q5">
+                            <h3>5. Is it okay to commit a crime when you are in a desperate situation/crisis</h3>
+                            <div class="options">
+                                <div class="option">
+                                    <input type="radio" id="seg3_q5_0" name="seg3_q5" value="0" required>
+                                    <label for="seg3_q5_0">NO <em>(0 points)</em></label>
+                                </div>
+                                <div class="option">
+                                    <input type="radio" id="seg3_q5_1" name="seg3_q5" value="2">
+                                    <label for="seg3_q5_1">YES  <em>(2 points)</em></label>
+                                </div>
+                            </div>
+                        </div>     
+                    {% elif segment_id == 4 %}
+                        {# Anti-Social Personality Pattern #}
+                        <div class="question" id="seg4_q1">
+                            <h3>1. I find it hard to follow rules</h3>
+                            <div class="options">
+                                <div class="option">
+                                    <input type="radio" id="seg4_q1_0" name="seg4_q1" value="0" required>
+                                    <label for="seg4_q1_0">NO <em>(0 points)</em></label>
+                                </div>
+                                <div class="option">
+                                    <input type="radio" id="seg4_q1_1" name="seg4_q1" value="1">
+                                    <label for="seg4_q1_1">YES <em>(1 point)</em></label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="question" id="seg4_q2">
+                            <h3>2. I lie and cheat to get what I want</h3>
+                            <div class="options">
+                                <div class="option">
+                                    <input type="radio" id="seg4_q2_0" name="seg4_q2" value="0" required>
+                                    <label for="seg4_q2_0">NO <em>(0 points)</em></label>
+                                </div>
+                                <div class="option">
+                                    <input type="radio" id="seg4_q2_1" name="seg4_q2" value="1">
+                                    <label for="seg4_q2_1">YES <em>(1 point)</em></label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="question" id="seg4_q3">
+                            <h3>3. I act without thinking of the consequences of my actions</h3>
+                            <div class="options">
+                                <div class="option">
+                                    <input type="radio" id="seg4_q3_0" name="seg4_q3" value="0" required>
+                                    <label for="seg4_q3_0">NO <em>(0 points)</em></label>
+                                </div>
+                                <div class="option">
+                                    <input type="radio" id="seg4_q3_1" name="seg4_q3" value="1">
+                                    <label for="seg4_q3_1">YES <em>(1 point)</em></label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="question" id="seg4_q4">
+                            <h3>4. I easily get irritated or angry</h3>
+                            <div class="options">
+                                <div class="option">
+                                    <input type="radio" id="seg4_q4_0" name="seg4_q4" value="0" required>
+                                    <label for="seg4_q4_0">NO <em>(0 points)</em></label>
+                                </div>
+                                <div class="option">
+                                    <input type="radio" id="seg4_q4_1" name="seg4_q4" value="1">
+                                    <label for="seg4_q4_1">YES <em>(1 point)</em></label>
+                                </div>
+                            </div>
+                        </div>  
+                        <div class="question" id="seg4_q5">
+                            <h3>5. I don't care who gets hurt as long as I get what I want</h3>
+                            <div class="options">
+                                <div class="option">
+                                    <input type="radio" id="seg4_q5_0" name="seg4_q5" value="0" required>
+                                    <label for="seg4_q5_0">NO <em>(0 points)</em></label>
+                                </div>
+                                <div class="option">
+                                    <input type="radio" id="seg4_q5_1" name="seg4_q5" value="1">
+                                    <label for="seg4_q5_1">YES <em>(1 point)</em></label>
+                                </div>
+                            </div>
+                        </div>   
+                        <div class="question" id="seg4_q6">
+                            <h3>6. I find it hard to follow through with responsibilities/assigned tasks</h3>
+                            <div class="options">
+                                <div class="option">
+                                    <input type="radio" id="seg4_q6_0" name="seg4_q6" value="0" required>
+                                    <label for="seg4_q6_0">NO <em>(0 points)</em></label>
+                                </div>
+                                <div class="option">
+                                    <input type="radio" id="seg4_q6_1" name="seg4_q6" value="1">
+                                    <label for="seg4_q6_1">YES <em>(1 point)</em></label>
+                                </div>
+                            </div>
+                        </div>   
+                    {% elif segment_id == 5 %}
+                        {# Education and Employment #}
+                        <div class="question" id="seg5_q1">
+                            <h3>1. Educational Attainment</h3>
+                            <div class="options">
+                                <div class="option">
+                                    <input type="radio" id="seg5_q1_0" name="seg5_q1" value="0" required>
+                                    <label for="seg5_q1_0">Vocational/College level & above <em>(0 points)</em></label>
+                                </div>
+                                <div class="option">
+                                    <input type="radio" id="seg5_q1_1" name="seg5_q1" value="1">
+                                    <label for="seg5_q1_1">Grade 7 to 12 <em>(1 point)</em></label>
+                                </div>
+                                <div class="option">
+                                    <input type="radio" id="seg5_q1_2" name="seg5_q1" value="2">
+                                    <label for="seg5_q1_2">Grade 6 and below <em>(2 point)</em></label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="question" id="seg5_q2">
+                            <h3>2. Educational Attachment</h3>
+                            <div class="options">
+                                <div class="option">
+                                    <input type="radio" id="seg5_q2_0" name="seg5_q2" value="0" required>
+                                    <label for="seg5_q2_0">Interested in school <em>(0 points)</em></label>
+                                </div>
+                                <div class="option">
+                                    <input type="radio" id="seg5_q2_1" name="seg5_q2" value="1">
+                                    <label for="seg5_q2_1">Lacks interest in school <em>(1 point)</em></label>
+                                </div>
+                                <div class="option">
+                                    <input type="radio" id="seg5_q2_2" name="seg5_q2" value="2">
+                                    <label for="seg5_q2_2">Did not get along well with teachers and other students/No interest in school <em>(2 points)</em></label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="question" id="seg5_q3">
+                            <h3>3. Overall Conduct in School</h3>
+                            <div class="options">
+                                <div class="option">
+                                    <input type="radio" id="seg5_q3_0" name="seg5_q3" value="0" required>
+                                    <label for="seg5_q3_0">Without misdemeanor <em>(0 points)</em></label>
+                                </div>
+                                <div class="option">
+                                    <input type="radio" id="seg5_q3_1" name="seg5_q3" value="2">
+                                    <label for="seg5_q3_1">With misdemeanor <em>(2 points)</em></label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="question" id="seg5_q4">
+                            <h3>4. Employment Status at the Time of Arrest</h3>
+                            <div class="options">
+                                <div class="option">
+                                    <input type="radio" id="seg5_q4_0" name="seg5_q4" value="0" required>
+                                    <label for="seg5_q4_0">Employed <em>(0 points)</em></label>
+                                </div>
+                                <div class="option">
+                                    <input type="radio" id="seg5_q4_1" name="seg5_q4" value="1">
+                                    <label for="seg5_q4_1">Irregularly employed <em>(1 point)</em></label>
+                                </div>
+                                <div class="option">
+                                    <input type="radio" id="seg5_q4_2" name="seg5_q4" value="2">
+                                    <label for="seg5_q4_2">Unemployed <em>(2 points)</em></label>
+                                </div>
+                            </div>
+                        </div>  
+                        <div class="question" id="seg5_q5">
+                            <h3>5. Employable Skills</h3>
+                            <div class="options">
+                                <div class="option">
+                                    <input type="radio" id="seg5_q5_0" name="seg5_q5" value="0" required>
+                                    <label for="seg5_q5_0">With at least one employable skill <em>(0 points)</em></label>
+                                </div>
+                                <div class="option">
+                                    <input type="radio" id="seg5_q5_1" name="seg5_q5" value="1">
+                                    <label for="seg5_q5_1">No employable skill but with potential and capacity to acquire one <em>(1 point)</em></label>
+                                </div>
+                                <div class="option">
+                                    <input type="radio" id="seg5_q5_2" name="seg5_q5" value="2">
+                                    <label for="seg5_q5_2">No employable skill <em>(2 points)</em></label> 
+                                </div>
+                            </div>
+                        </div>   
+                        <div class="question" id="seg5_q6">
+                            <h3>6. Employment History</h3>
+                            <div class="options">
+                                <div class="option">
+                                    <input type="radio" id="seg5_q6_0" name="seg5_q6" value="0" required>
+                                    <label for="seg5_q6_0">Treats job seriously; Finds work rewarding; Good relationship with employer and co-workers <em>(0 points)</em></label>
+                                </div>
+                                <div class="option">
+                                    <input type="radio" id="seg5_q6_1" name="seg5_q6" value="1">
+                                    <label for="seg5_q6_1">Inconsistent employment; No employment that lasts 3 months; Minimum attachment to work <em>(1 point)</em></label>
+                                </div>
+                                <div class="option">
+                                    <input type="radio" id="seg5_q6_2" name="seg5_q6" value="2">
+                                    <label for="seg5_q6_2">Does not like/love job; Conflict with the employer; No interest in working; No attachments to work; Frequently fired from work <em>(2 points)</em></label>
+                                </div>
+                            </div>
+                        </div>     
+                    {% elif segment_id == 6 %}
+                        {# Family and Marital Status #}
+                        <div class="question" id="seg6_q1">
+                            <h3>1. Quality of Family/Marital Relationships</h3>
+                            <div class="options">
+                                <div class="option">
+                                    <input type="radio" id="seg6_q1_0" name="seg6_q1" value="0" required>
+                                    <label for="seg6_q1_0">With positive influence <em>(0 points)</em></label>
+                                </div>
+                                <div class="option">
+                                    <input type="radio" id="seg6_q1_1" name="seg6_q1" value="1">
+                                    <label for="seg6_q1_1">With occasional negative influence <em>(1 point)</em></label>
+                                </div>
+                                <div class="option">
+                                    <input type="radio" id="seg6_q1_2" name="seg6_q1" value="2">
+                                    <label for="seg6_q1_2">With regular negative influence <em>(2 points)</em></label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="question" id="seg6_q2">
+                            <h3>2. Parental Guidance and Supervision</h3>
+                            <div class="options">
+                                <div class="option">
+                                    <input type="radio" id="seg6_q2_0" name="seg6_q2" value="0" required>
+                                    <label for="seg6_q2_0">Adequate guidance and supervision <em>(0 points)</em></label>
+                                </div>
+                                <div class="option">
+                                    <input type="radio" id="seg6_q2_1" name="seg6_q2" value="1">
+                                    <label for="seg6_q2_1">Minimal guidance and supervision <em>(1 point)</em></label>
+                                </div>
+                                <div class="option">
+                                    <input type="radio" id="seg6_q2_2" name="seg6_q2" value="2">
+                                    <label for="seg6_q2_2">Without guidance and supervision; Overbearing/Over Protective <em>(2 points)</em></label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="question" id="seg6_q3">
+                            <h3>3. Family Acceptability in the Community</h3>
+                            <div class="options">
+                                <div class="option">
+                                    <input type="radio" id="seg6_q3_0" name="seg6_q3" value="0" required>
+                                    <label for="seg6_q3_0">Acceptable <em>(0 points)</em></label>
+                                </div>
+                                <div class="option">
+                                    <input type="radio" id="seg6_q3_1" name="seg6_q3" value="1">
+                                    <label for="seg6_q3_1">Unacceptable <em>(1 point)</em></label>
+                                </div>
+                                <div class="option">
+                                    <input type="radio" id="seg6_q3_2" name="seg6_q3" value="2">
+                                    <label for="seg6_q3_2">Highly unacceptable <em>(2 points)</em></label>
+                                </div>
+                            </div>
+                        </div>               
+                        <div class="question" id="seg6_q4">
+                            <h3>4. Spirituality/Religiosity</h3>
+                            <div class="options">
+                                <div class="option">
+                                    <input type="radio" id="seg6_q4_0" name="seg6_q4" value="0" required>
+                                    <label for="seg6_q4_0">Integrated spiritual belief and religious activities <em>(0 points)</em></label>
+                                </div>
+                                <div class="option">
+                                    <input type="radio" id="seg6_q4_1" name="seg6_q4" value="1">
+                                    <label for="seg6_q4_1">Disintegrated spiritual belief but with some manifested positive religious belief <em>(1 point)</em></label>
+                                </div>
+                                <div class="option">
+                                    <input type="radio" id="seg6_q4_2" name="seg6_q4" value="2">
+                                    <label for="seg6_q4_2">Disintegrated religious belief and negative religious activities <em>(2 points)</em></label>
+                                </div>
+                            </div>
+                        </div>
+                    {% elif segment_id == 7 %}
+                        {# Substance Abuse #}
+                        <div class="question" id="seg7_q1">
+                            <h3>1. History of Drug Abuse</h3>
+                            <div class="options">
+                                <div class="option">
+                                    <input type="radio" id="seg7_q1_0" name="seg7_q1" value="1" required>
+                                    <label for="seg7_q1_0">If client abuses drugs (other than those required for medical reasons) <em>(1 point)</em></label>
+                                </div>
+                                <div class="option">
+                                    <input type="radio" id="seg7_q1_1" name="seg7_q1" value="0">
+                                    <label for="seg7_q1_1">Never <em>(0 points)</em></label>
+                                </div>
+                            </div>
+                        </div>            
+                        <div class="question" id="seg7_q2">
+                            <h3>2. Frequency of Drug Use</h3>
+                            <div class="options">
+                                <div class="option">
+                                    <input type="radio" id="seg7_q2_0" name="seg7_q2" value="0" required>
+                                    <label for="seg7_q2_0">No Usage <em>(0 points)</em></label>
+                                </div>
+                                <div class="option">
+                                    <input type="radio" id="seg7_q2_1" name="seg7_q2" value="1">
+                                    <label for="seg7_q2_1">At least once a month <em>(1 point)</em></label>
+                                </div>
+                                <div class="option">
+                                    <input type="radio" id="seg7_q2_2" name="seg7_q2" value="2">
+                                    <label for="seg7_q2_2">At least once a week <em>(2 points)</em></label>
+                                </div>
+                                <div class="option">
+                                    <input type="radio" id="seg7_q2_3" name="seg7_q2" value="3">
+                                    <label for="seg7_q2_3">Almost Daily <em>(3 points)</em></label>
+                                </div>
+                            </div>
+                        </div>            
+                        <div class="question" id="seg7_q3">
+                            <h3>3. History of Alcohol Abuse</h3>
+                            <div class="options">
+                                <div class="option">
+                                    <input type="radio" id="seg7_q3_0" name="seg7_q3" value="1" required>
+                                    <label for="seg7_q3_0">If client abuses alcoholic beverages <em>(1 point)</em></label>
+                                </div>
+                                <div class="option">
+                                    <input type="radio" id="seg7_q3_1" name="seg7_q3" value="0">
+                                    <label for="seg7_q3_1">Never <em>(0 points)</em></label>
+                                </div>
+                            </div>
+                        </div>            
+                        <div class="question" id="seg7_q4">
+                            <h3>4. Frequency of Alcohol Use</h3>
+                            <div class="options">
+                                <div class="option">
+                                    <input type="radio" id="seg7_q4_0" name="seg7_q4" value="0" required>
+                                    <label for="seg7_q4_0">No Usage <em>(0 points)</em></label>
+                                </div>
+                                <div class="option">
+                                    <input type="radio" id="seg7_q4_1" name="seg7_q4" value="1">
+                                    <label for="seg7_q4_1">At least once a month <em>(1 point)</em></label>
+                                </div>
+                                <div class="option">
+                                    <input type="radio" id="seg7_q4_2" name="seg7_q4" value="2">
+                                    <label for="seg7_q4_2">At least once a week <em>(2 points)</em></label>
+                                </div>
+                                <div class="option">
+                                    <input type="radio" id="seg7_q4_3" name="seg7_q4" value="3">
+                                    <label for="seg7_q4_3">Almost Daily <em>(3 points)</em></label>
+                                </div>
+                            </div>
+                        </div>           
+                        <div class="question" id="seg7_q5">
+                            <h3>5. Desire/Urge for Substance Use</h3>
+                            <div class="options">
+                                <div class="option">
+                                    <input type="radio" id="seg7_q5_0" name="seg7_q5" value="0" required>
+                                    <label for="seg7_q5_0">Never <em>(0 points)</em></label>
+                                </div>
+                                <div class="option">
+                                    <input type="radio" id="seg7_q5_1" name="seg7_q5" value="1">
+                                    <label for="seg7_q5_1">Sometimes <em>(1 point)</em></label>
+                                </div>
+                                <div class="option">
+                                    <input type="radio" id="seg7_q5_2" name="seg7_q5" value="2">
+                                    <label for="seg7_q5_2">Always <em>(2 points)</em></label>
+                                </div>
+                            </div>
+                        </div>            
+                        <div class="question" id="seg7_q6">
+                            <h3>6. Cut Down on Substance Use (Reverse Coded)</h3>
+                            <div class="options">
+                                <div class="option">
+                                    <input type="radio" id="seg7_q6_0" name="seg7_q6" value="0" required>
+                                    <label for="seg7_q6_0">Always Able to Stop <em>(0 points)</em></label>
+                                </div>
+                                <div class="option">
+                                    <input type="radio" id="seg7_q6_1" name="seg7_q6" value="1">
+                                    <label for="seg7_q6_1">Unable to Stop <em>(1 point)</em></label>
+                                </div>
+                            </div>
+                        </div>            
+                        <div class="question" id="seg7_q7">
+                            <h3>7. Family History of Substance Use</h3>
+                            <div class="options">
+                                <div class="option">
+                                    <input type="radio" id="seg7_q7_0" name="seg7_q7" value="1" required>
+                                    <label for="seg7_q7_0">YES <em>(1 point)</em></label>
+                                </div>
+                                <div class="option">
+                                    <input type="radio" id="seg7_q7_1" name="seg7_q7" value="0">
+                                    <label for="seg7_q7_1">NO <em>(0 points)</em></label>
+                                </div>
+                            </div>
+                        </div>
+                    {% elif segment_id == 8 %}
+                        {# Mental Health #}
+                        <div class="question" id="seg8_q1">
+                            <h3>1. I can perform my daily activities with minimal support from others</h3>
+                            <div class="options">
+                                <div class="option">
+                                    <input type="radio" id="seg8_q1_0" name="seg8_q1" value="0" required>
+                                    <label for="seg8_q1_0">YES <em>(0 points)</em></label>
+                                </div>
+                                <div class="option">
+                                    <input type="radio" id="seg8_q1_1" name="seg8_q1" value="1">
+                                    <label for="seg8_q1_1">NO <em>(1 point)</em></label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="question" id="seg8_q2">
+                            <h3>2. I can easily make good decisions on my own</h3>
+                            <div class="options">
+                                <div class="option">
+                                    <input type="radio" id="seg8_q2_0" name="seg8_q2" value="0" required>
+                                    <label for="seg8_q2_0">YES <em>(0 points)</em></label>
+                                </div>
+                                <div class="option">
+                                    <input type="radio" id="seg8_q2_1" name="seg8_q2" value="1">
+                                    <label for="seg8_q2_1">NO <em>(1 point)</em></label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="question" id="seg8_q3">
+                            <h3>3. I have experienced sadness for 14 days over the last 6 months</h3>
+                            <div class="options">
+                                <div class="option">
+                                    <input type="radio" id="seg8_q3_0" name="seg8_q3" value="1" required>
+                                    <label for="seg8_q3_0">YES <em>(1 point)</em></label>
+                                </div>
+                                <div class="option">
+                                    <input type="radio" id="seg8_q3_1" name="seg8_q3" value="0">
+                                    <label for="seg8_q3_1">NO <em>(0 points)</em></label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="question" id="seg8_q4">
+                            <h3>4. I have received consultation/treatment/counseling for a psychological/psychiatric problem</h3>
+                            <div class="options">
+                                <div class="option">
+                                    <input type="radio" id="seg8_q4_0" name="seg8_q4" value="1" required>
+                                    <label for="seg8_q4_0">YES <em>(1 point)</em></label>
+                                </div>
+                                <div class="option">
+                                    <input type="radio" id="seg8_q4_1" name="seg8_q4" value="0">
+                                    <label for="seg8_q4_1">NO <em>(0 points)</em></label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="question" id="seg8_q5">
+                            <h3>5. I sometimes hear or see things not normally seen or heard by others</h3>
+                            <div class="options">
+                                <div class="option">
+                                    <input type="radio" id="seg8_q5_0" name="seg8_q5" value="1" required>
+                                    <label for="seg8_q5_0">YES <em>(1 point)</em></label>
+                                </div>
+                                <div class="option">
+                                    <input type="radio" id="seg8_q5_1" name="seg8_q5" value="0">
+                                    <label for="seg8_q5_1">NO <em>(0 points)</em></label>
+                                </div>
+                            </div>
+                        </div>
+                    {% endif %}
+                {% endif %}
+            {% endif %}
+
+            <div class="form-actions">
+                {% if segment_id > 1 %}
+                <a href="{{ secure_url_for('segment', segment_id=segment_id-1) }}" class="btn btn-secondary">Previous</a>
+                {% endif %}
+                
+                <button type="submit" class="btn btn-primary">
+                    {% if segment_id < 8 %}
+                    Next
+                    {% else %}
+                    Finish
+                    {% endif %}
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <div class="segment-images">
+        {% for image in ['BagongPilipinas.png', 'DOJ.png', 'PPO.png'] %}
+            {% if image %}
+                <img src="{{ url_for('static', filename='images/' + image) }}" 
+                     alt="{{ image.split('.')[0] }} Logo" 
+                     class="segment-image">
+            {% endif %}
+        {% endfor %}
+    </div>
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+</html>

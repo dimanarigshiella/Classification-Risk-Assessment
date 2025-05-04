@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+    <title>Risk Assessment Questionnaire</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+        
+    <!-- Add CryptoJS for local storage encryption -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+</head>
+<body class="index-body" data-logged-in="{{ 'true' if 'google_token' in session else 'false' }}">
+
+    <!-- Main Content -->
+
+        <!-- Overlay -->
+        <div class="overlay"></div>
+        
+        <!-- Add this where your current logout button is -->
+        <div class="user-profile">
+            <div class="profile-icon">
+                <i class="fas fa-user"></i>
+            </div>
+            <div class="profile-dropdown">
+                <p><strong>Logged in as: </strong> {{ session.get('email', '') }} </p>
+                <a href="{{ url_for('logout') }}" class="logout-btn">Log Out</a>
+            </div>
+        </div>
+
+        <form method="post" action="{{ url_for('index') }}">
+                <table class="main-table">
+                    <tr>
+                        <td colspan="3" class="image-cell">
+                            <div class="table-images">
+                                <img src="{{ url_for('static', filename='images/PPO.png') }}" alt="PPO Logo" class="table-image">
+                                <img src="{{ url_for('static', filename='images/DOJ.png') }}" alt="DOJ Logo" class="table-image">
+                                <img src="{{ url_for('static', filename='images/BagongPilipinas.png') }}" alt="Bagong Pilipinas Logo" class="table-image">
+                            </div>
+                        </td>
+                    </tr> 
+                    <tr>
+                        <td colspan="2" class="table-header">
+                            <h1>CLASSIFICATION AND RISK ASSESSMENT TOOL</h1>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="label" colspan="2">
+                            Name of Petitioner/Probation/Parole:
+                            <input type="text" class="input-box" name="client_name" placeholder="Enter Details Here" required>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="label" colspan="2">
+                            Length of Sentence:
+                            <select class="dropdown-box" name="length_of_sentence" required>
+                                <option value="" disabled selected> </option>
+                                <option value="1-year">Less than 1 Year</option>
+                                <option value="1-year">1 Year</option>
+                                <option value="2-years">2 Years</option>
+                                <option value="3-years">3 Years</option>
+                                <option value="4-years">4 Years</option>
+                                <option value="5-years">5 Years</option>
+                                <option value="6-years">6 Years</option>
+                            </select>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="label" colspan="2">
+                            Name & Position of Inv/Supvg Officer:
+                            <input type="text" class="input-box" name="officer_name" placeholder="Enter Details Here" required>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="label" colspan="2">
+                            Chief Probation Officer/Officer-in-Charge:
+                            <input type="text" class="input-box" name="chief_name" placeholder="Enter Details Here" required>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td colspan="2" class="table-button">
+                            <button type="submit" class="btn">Start Assessment</button>
+                        </td>
+                    </tr>
+                </table>
+        </form>
+
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    <!-- Keep script.js for reference but commented out - all functionality is now in main.js -->
+    <!-- <script src="{{ url_for('static', filename='js/script.js') }}"></script> -->
+</body>
+</html>

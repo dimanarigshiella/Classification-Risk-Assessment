@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Login - Risk Assessment Questionnaire</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}" />
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400..700;1,400..700&family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet" />
+    <link rel="icon" href="{{ url_for('static', filename='favicon.ico') }}" type="image/x-icon" />
+</head>
+<body class="login-page">
+    <div>
+        <table class="login-table">     
+            <tr>
+                <td colspan="2" class="login-header">
+                    <h1>CLASSIFICATION AND RISK ASSESSMENT TOOL</h1>
+                </td>
+            </tr>
+            <tr>
+                <td class="inside-image">
+                    <img src="{{ url_for('static', filename='images/2.png') }}" class="inside-image" />
+                    <p> </p>
+                    <p> </p>
+                    <p><strong>Redeeming Lives... Restoring Relationship...</strong></p>
+                </td>
+            </tr>
+            <tr>
+                <td colspan="2" class="table-button">
+                    <a href="{{ url_for('login_google') }}" class="btn">Login with Google</a>
+                </td>
+            </tr>
+        </table>
+    </div>
+</body>
+</html>

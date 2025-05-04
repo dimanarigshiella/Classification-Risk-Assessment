@@ -1,0 +1,740 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Classification and Risk Assessment Tool</title>
+    <style>
+        /* Update page and margins */
+        @page {
+            size: A4;
+            margin: 0.3cm;  /* Reduced from 0.5cm */
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            width: calc(210mm - 0.6cm);  /* Adjusted for new margins */
+            min-height: calc(297mm - 0.6cm);
+            font-size: 8pt;
+            line-height: 1.1;  /* Tighter line height */
+        }
+
+        .content {
+            margin: 0.3cm;
+        }
+
+        table {
+            table-layout: fixed;
+            width: 100%;
+            max-width: calc(210mm - 0.6cm);  /* Match body width */
+            margin: 0 auto;
+            border-collapse: collapse;
+            page-break-inside: auto;
+            border: 1px solid #000;
+        }
+
+        /* Lower the first table on the first page */
+        .content > table:first-of-type {
+            margin-top: 12mm;
+        }
+
+        /* Lower the second page table */
+        .page-break > table {
+            margin-top: 12mm;
+        }
+
+        .col-factors {
+            width: 40%;
+        }
+        
+        .col-points {
+            width: 10%;
+        }
+
+        th, td {
+            font-size: 9pt;
+            border: 1px solid #000;  /* Add borders to all cells */
+            padding: 8px;
+            vertical-align: top;
+            padding-top: 0%;
+            padding-bottom: 0%;
+        }
+
+        .merged-cell {
+            font-size: 11pt;
+            border-bottom: 2px solid #000;
+            text-align: center;  /* Center all content */
+        }
+
+        .segment-wrapper {
+            max-height: 250mm; /* A4 height minus margins and headers */
+            overflow: hidden;
+        }
+
+        .segment {
+            page-break-inside: avoid;
+            margin-bottom: 4px;  /* Reduced from 8px */
+            padding-bottom: 2px; /* Reduced from 4px */
+        }
+
+        .segment-content {
+            padding: 10px;
+        }
+
+        .factor-title {
+            font-size: 8pt;
+            font-weight: bold;
+            margin-bottom: 2px;  /* Reduced from 6px */
+            line-height: 1.1;    /* Tighter line height */
+        }
+
+        .question {
+            font-size: 8pt;
+            margin-bottom: 5px;  /* Increased padding for spacing */
+            line-height: 1.1;    /* Tighter line height */
+        }
+
+        .score {
+            font-size: 7pt;
+            margin-bottom: 0;  /* Remove margin between individual scores */
+            padding-left: 8px;   /* Added padding for alignment */
+            text-align: center;
+        }
+        .score:last-child {
+            margin-bottom: 6px; /* Add space only after last score per question */
+        }
+
+        .answer {
+            font-size: 7pt;
+            margin-left: 8px;    /* Reduced from 12px */
+            line-height: 1.1;    /* Tighter line height */
+            position: relative;
+        }
+        .answer.value {
+            font-size: 7pt;
+            margin-left: 8px;    /* Reduced from 12px */
+            line-height: 1.1;    /* Tighter line height */
+            position: relative;
+        }
+
+        .selected {
+            font-weight: bold;
+            color: #000;
+        }
+
+        .score-column {
+            text-align: center;
+            border-left: 1px solid #000;
+            border-right: 1px solid #000;
+            font-size: 7pt;
+            width: 10%;
+            vertical-align: top;
+            padding-top: 15px;   /* Reduced from 32px */
+        }
+
+        .score {
+            height: 10px;        /* Reduced from 20px */
+            line-height: 10px;   /* Match height */
+            text-align: center; 
+            margin: 1px 0;       /* Reduced from 4px */
+            font-size: 7pt;
+        }
+
+        .subtotal {
+            text-align: right;
+            font-size: 8pt;
+            font-weight: bold;
+            margin-top: 6px;     /* Reduced from 12px */
+            padding-top: 2px;    /* Reduced from 5px */
+            line-height: 1.1;    /* Tighter line height */
+
+        }
+
+        .notes {
+            height: 10px; /* Adjust height as needed */
+            border: 1px solid #000;
+            padding: 8px;
+            margin: 10px 0;
+        }
+
+        .signature {
+            margin-top: 20px;  /* Reduced from 30px */
+            page-break-inside: avoid;  /* Keep signatures together */
+        }
+
+        .signature div {
+            width: 45%;
+        }
+
+        .signature hr {
+            border: none;
+            border-bottom: 1px solid #000;
+            margin: 15px 0 5px 0;  /* Reduced from 25px */
+        }
+
+        .nested-table {
+            table-layout: fixed;
+            width: 100%;
+            border-collapse: collapse;
+            margin: 10px 0;
+            table-layout: auto;
+        }
+
+        .nested-table th, 
+        .nested-table td {
+
+            border: 1px solid #000;
+            text-align: left;
+            font-size: 7pt;
+        }
+        /* Smaller text for CRIMINOGENIC NEEDS table */
+        .criminogenic-needs-table th,
+        .criminogenic-needs-table td {
+            font-size: 6pt;
+        }
+
+        .nested-table th {
+            background-color: #f2f2f2;
+        }
+
+        .no-border {
+            border: none;
+        }
+
+        .vertical-cell {
+            border-left: 1px solid #000;
+            border-right: 1px solid #000;
+            font-size: 8pt;  /* Default font size for all content in this cell */
+        }
+
+        .vertical-cell label {
+            font-size: 8pt;
+        }
+
+        .vertical-cell .instruction {
+            font-size: 7pt;
+            padding-bottom: 0%;
+        }
+
+        .header-title {
+            font-size: 13pt;  /* Larger font for main title */
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        
+        .client-info {
+            font-size: 8pt;  /* Smaller font for client details */
+        }
+
+        .client-name {
+            border-bottom: 1px solid #000;
+            padding: 0 4px;
+            display: inline-block;
+            min-width: 200px;  /* Adjust width of underline as needed */
+        }
+
+        .section-title {
+            font-size: 9pt;
+            margin-top: 8px;  /* Reduced from 12px */
+        }
+
+        .segment-scores {
+            display: flex;
+            flex-direction: column;
+            margin-top: 24px;    /* Reduced from 32px */
+            padding-left: 8px; /* Added padding to align with answers */
+        }
+
+        .page-break {
+            page-break-before: always;
+            margin-top: 0;  /* Remove margin to prevent movement */
+            position: relative; /* Ensure stable positioning */
+        }
+
+        .grand-total {
+            text-align: right;
+            font-size: 8pt;
+            font-weight: bold;
+        }
+        .grand-total > .answer-value {
+            border-bottom: 1px solid #000;
+            padding-bottom: 1px;
+            display: inline-block;
+            font-weight: bold;
+        }
+
+        .risk-level {
+            text-align: right;
+            font-size: 8pt;
+            font-weight: bold;
+            margin-top: 8px;
+            border-bottom: 1px solid #000;
+            padding-bottom: 2px;
+            display: block;
+            width: 100%;
+        }
+
+        .risk-level > .answer-value {
+            font-weight: bold;
+        }
+
+        .notes-section {
+            padding-top: 0%;
+        }
+
+        .notes-lines {
+            border-bottom: 1px solid #000;
+            height: 10px;  /* Reduced from 25px */
+            margin: 4px 0;  /* Reduced from 5px */
+        }
+
+        .signature-section {
+            margin-top: 20px;  /* Reduced from 30px */
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .signature-line {
+            width: 45%;
+            text-align: center;
+        }
+
+        .signature-line hr {
+            width: 100%;
+            border-top: 1px solid #000;
+            margin: 15px 0 5px 0;  /* Reduced from 25px */
+        }
+        .question {
+        margin-bottom: 5px;
+        }
+        .question-title {
+            font-weight: bold;
+            padding-left: 10px;
+        }
+        .answers {
+            margin-left: 22px;
+        }
+        .answer-line {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .answer-text.selected {
+            font-weight: bold;
+        }
+        .answer-value {
+            width: 30px; /* Fixed width to align values neatly */
+            text-align: right;
+            font-weight: normal;
+            font-size: 9pt;
+            padding-right: 20px;
+        }
+        .answer-value.selected {
+            font-weight: bold;
+        }
+        .subtotal {
+            margin-top: 10px;
+            font-weight: bold;
+        }
+        .subtotal > .answer-value {
+            border-bottom: 1px solid #000;
+            padding-bottom: 1px;
+            display: inline-block;
+            font-weight: bold;
+        }
+        .notes-content {
+            padding-top: 5px;
+            font-size: 8pt;
+            padding-bottom: 10px;
+        }
+        /* Custom checkbox styling */
+        .checkbox {
+            width: 30px; /* Increased width for horizontal rectangle */
+            height: 14px; /* Reduced height for horizontal rectangle */
+            appearance: none;
+            -webkit-appearance: none;
+            border: 1.5px solid #000;
+            border-radius: 0px; /* Changed from 3px to 0 for rectangle shape */
+            position: relative;
+            cursor: pointer;
+            margin: 0;
+        }
+        .checkbox-filled {
+            background-color: #ffff99; /* Light yellow highlight */
+        }
+
+        .highlight {
+            background-color: #ffff99; /* Light yellow highlight */
+            font-weight: bold;
+        }
+
+        .check-box {
+            display: inline-block;
+            width: 20px;
+            height: 16px;
+            border: 1.5px solid #000;
+            text-align: center;
+            line-height: 16px;
+            font-weight: bold;
+            font-size: 14px;
+            margin-right: 6px;
+            vertical-align: middle;
+        }
+        
+        .Sentenced {
+            white-space: wrap;
+            font-weight: bold;
+        }
+        
+
+    </style>
+</head>
+<body>
+    <div class="content">
+        <table>
+            <colgroup>
+                <col class="col-factors">
+                <col class="col-factors">
+            </colgroup>
+            <!-- Header -->
+            <tr>
+                <td colspan="2" class="merged-cell">
+                    <div class="header-title">Classification and Risk Assessment Tool</div>
+                    <div class="client-info">
+                        <span><span class="client-name">{{ client_name }}</span></span><br>
+                        <span>Name of Petitioner/Probationer/Parolee</span>
+                    </div>
+                </td>
+            </tr>
+            
+            <!-- Column headers -->
+            <tr>
+                <th style="text-align: left; width: 50%;">
+                    <span style="float: left; padding-left: 130px;">FACTORS</span>
+                    <span style="float: right;">POINTS</span>
+                </th>
+                <th style="text-align: left; width: 50%;">
+                    <span style="float: left; padding-left: 130px;">FACTORS</span>
+                    <span style="float: right;">POINTS</span>
+                </th>
+            </tr>
+
+            <!-- First page content -->
+            <tr>
+            <!-- First column (Segments 1-3) -->
+            <td>
+                {% for segment_id in range(1, 4) %}
+                    <div class="segment">
+                        <div class="factor-title">{{ segment_titles.get(segment_id, 'Unknown Segment') }}</div>
+                        
+                        {% for i in range(segment_answers.get(segment_id, {}).get('questions', [])|length) %}
+                            <div class="question">
+                                <div class="question-title">
+                                    {{ loop.index }}. {{ segment_answers[segment_id]['questions'][i] }}
+                                </div>
+
+                                {% set answer_list = segment_answers_data.get(segment_id, {}).get(i, []) %}
+                                <div class="answers">
+                                    {% for answer in answer_list %}
+                                        <div class="answer-line">
+                                            <div class="answer-text {% if segment_answers[segment_id]['scores'][i] == answer.value %}selected{% endif %}">
+                                                {{ answer.text }}
+                                            </div>
+                                            <div class="answer-value {% if segment_answers[segment_id]['scores'][i] == answer.value %}selected{% endif %}">
+                                                {{ answer.value }}
+                                            </div>
+                                        </div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        {% endfor %}
+
+                        <div class="subtotal">
+                            SUB-TOTAL: <span class="answer-value">{{ subtotals.get(segment_id, 0) }}</span>
+                        </div>
+                    </div>
+                {% endfor %}
+            </td>
+
+                <!-- Third column (Segments 4-5) -->
+                <td>
+                    {% for segment_id in range(4, 6) %}  <!-- Segments 4-5 -->
+                        <div class="segment">
+                            <div class="factor-title">{{ segment_titles.get(segment_id, 'Unknown Segment') }}</div>
+                            
+                            {% for i in range(segment_answers.get(segment_id, {}).get('questions', [])|length) %}
+                                <div class="question">
+                                    <div class="question-title">
+                                        {{ loop.index }}. {{ segment_answers[segment_id]['questions'][i] }}
+                                    </div>
+                
+                                    {% set answer_list = segment_answers_data.get(segment_id, {}).get(i, []) %}
+                                    <div class="answers">
+                                        {% for answer in answer_list %}
+                                            <div class="answer-line">
+                                                <div class="answer-text {% if segment_answers[segment_id]['scores'][i] == answer.value %}selected{% endif %}">
+                                                    {{ answer.text }}
+                                                </div>
+                                                <div class="answer-value {% if segment_answers[segment_id]['scores'][i] == answer.value %}selected{% endif %}">
+                                                    {{ answer.value }}
+                                                </div>
+                                            </div>
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                            {% endfor %}
+                
+                            <div class="subtotal">
+                                SUB-TOTAL: <span class="answer-value">{{ subtotals.get(segment_id, 0) }}</span>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </td>
+            </tr>
+        </table>
+        
+        <!-- Second page -->
+        <div class="page-break">
+            <table>
+                <colgroup>
+                    <col class="col-factors">
+                    <col class="col-factors">
+                </colgroup>
+                <tr>
+                    <th style="text-align: left; width: 50%;">
+                        <span style="float: left; padding-left: 130px;">FACTORS</span>
+                        <span style="float: right;">POINTS</span>
+                    </th>
+                    <th style="text-align: left; width: 50%;">
+                        <span style="float: left; padding-left: 130px;">FACTORS</span>
+                        <span style="float: right;">POINTS</span>
+                    </th>
+                </tr>
+                <tr>
+                    <td>
+                        {% for segment_id in range(6, 8) %}  <!-- Segments 6-7 -->
+                            <div class="segment">
+                                <div class="factor-title">{{ segment_titles.get(segment_id, 'Unknown Segment') }}</div>
+                                
+                                {% for i in range(segment_answers.get(segment_id, {}).get('questions', [])|length) %}
+                                    <div class="question">
+                                        <div class="question-title">
+                                            {{ loop.index }}. {{ segment_answers[segment_id]['questions'][i] }}
+                                        </div>
+                    
+                                        {% set answer_list = segment_answers_data.get(segment_id, {}).get(i, []) %}
+                                        <div class="answers">
+                                            {% for answer in answer_list %}
+                                                <div class="answer-line">
+                                                    <div class="answer-text {% if segment_answers[segment_id]['scores'][i] == answer.value %}selected{% endif %}">
+                                                        {{ answer.text }}
+                                                    </div>
+                                                    <div class="answer-value {% if segment_answers[segment_id]['scores'][i] == answer.value %}selected{% endif %}">
+                                                        {{ answer.value }}
+                                                    </div>
+                                                </div>
+                                            {% endfor %}
+                                        </div>
+                                    </div>
+                                {% endfor %}
+                    
+                                <div class="subtotal">
+                                    SUB-TOTAL: <span class="answer-value">{{ subtotals.get(segment_id, 0) }}</span>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </td>                    
+
+                    <td>
+                        <div class="segment">
+                            <div class="factor-title">{{ segment_titles.get(8, 'Unknown Segment') }}</div>
+                            
+                            {% for i in range(segment_answers.get(8, {}).get('questions', [])|length) %}
+                                <div class="question">
+                                    <div class="question-title">
+                                        {{ loop.index }}. {{ segment_answers[8]['questions'][i] }}
+                                    </div>
+                    
+                                    {% set answer_list = segment_answers_data.get(8, {}).get(i, []) %}
+                                    <div class="answers">
+                                        {% for answer in answer_list %}
+                                            <div class="answer-line">
+                                                <div class="answer-text {% if segment_answers[8]['scores'][i] == answer.value %}selected{% endif %}">
+                                                    {{ answer.text }}
+                                                </div>
+                                                <div class="answer-value {% if segment_answers[8]['scores'][i] == answer.value %}selected{% endif %}">
+                                                    {{ answer.value }}
+                                                </div>
+                                            </div>
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                            {% endfor %}
+                    
+                            <div class="subtotal">SUB-TOTAL: <span class="answer-value">{{ subtotals.get(8, 0) }}</span></div>
+                            <div class="grand-total">GRAND TOTAL: <span class="answer-value">{{ subtotals.values() | sum }}</span></div>
+                            <div class="risk-level">RISK LEVEL: <span class="answer-value">{{ risk_assessment.level }}</span></div>
+
+                            <!-- Final sections moved inside segment 8 cell -->
+                            <!-- LENGTH OF SENTENCE -->
+                            <h1 class="section-title" style="font-size: 8pt;">LENGTH OF SENTENCE</h1>
+                            <div style="display: flex; gap: 20px; justify-content: center;">
+                                <label class="{% if risk_assessment.level in ['Low Risk (Level 1)', 'Medium Risk (Level 2)'] %}highlight{% endif %}" style="display: flex; align-items: center; margin-right: 20px;">
+                                    <span class="check-box">
+                                        {% if risk_assessment.level in ['Low Risk (Level 1)', 'Medium Risk (Level 2)'] %}✓{% else %}&nbsp;{% endif %}
+                                    </span>
+                                    <span>One (1) Year or Less</span>
+                                </label>
+                                <label class="{% if risk_assessment.level in ['High Risk (Level 3)', 'Very High Risk (Level 4)'] %}highlight{% endif %}" style="display: flex; align-items: center;">
+                                    <span class="check-box">
+                                        {% if risk_assessment.level in ['High Risk (Level 3)', 'Very High Risk (Level 4)'] %}✓{% else %}&nbsp;{% endif %}
+                                    </span>
+                                    <span>Above Two (2) Years</span>
+                                </label>
+                            </div>
+
+                            
+                            <h1 class="section-title" style="font-size: 8pt; text-align: center;">REFERENCE TABLE for the LENGTH OF SUPERVISION</h1>
+                            <p style="text-align: center; font-size: 7pt;">(based on Sec 14 PD 968, as amended)</p>
+                            <table class="nested-table">
+                                <colgroup>
+                                    <col style="width: 20%">  <!-- Score Range -->
+                                    <col style="width: 25%">  <!-- Risk Level -->
+                                    <col style="width: 15%">  <!-- Length 1 -->
+                                    <col style="width: 15%">  <!-- Length 2 -->
+                                    <col style="width: 25%">  <!-- Supervision -->
+                                </colgroup>
+                                <tr>
+                                    <th style="text-align: center;">SCORE RANGE</th>
+                                    <th style="text-align: center; padding-top: 5px;">RISK LEVEL</th>
+                                    <th colspan="2" style="text-align: center;">LENGTH OF PROBATION PERIOD</th>
+                                    <th style="text-align: center;">INTENSITY OF SUPERVISION</th>
+                                </tr>
+                                <th></th>
+                                <th></th>
+                                <th class="Sentenced" style="text-align: center; font-size: 6pt;">Sentenced to 1 year Imprisonment or less</th>
+                                <th style="text-align: center; font-size: 6pt; padding-top: 9px;">All other Cases</th>
+                                <th></th>
+                                <tr class="{% if risk_assessment.level == 'Low Risk (Level 1)' %}highlight{% endif %}">
+                                    <td style="text-align: center;">17 and below</td>
+                                    <td style="text-align: center;">Low Risk (Level 1)</td>
+                                    <td style="text-align: center; padding-top: 5px;">6 months</td>
+                                    <td style="text-align: center; padding-top: 5px;">1 year</td>
+                                    <td style="text-align: center;">Once in 2 months</td>
+                                </tr>
+                                <tr class="{% if risk_assessment.level == 'Medium Risk (Level 2)' %}highlight{% endif %}">
+                                    <td style="text-align: center; padding-top: 5px;">18 to 28</td>
+                                    <td style="text-align: center;">Medium Risk (Level 2)</td>
+                                    <td style="text-align: center; padding-top: 5px;">6 months</td>
+                                    <td style="text-align: center; padding-top: 5px;">1 year</td>
+                                    <td style="text-align: center; padding-top: 5px;">Once a month</td>
+                                </tr>
+                                <tr class="{% if risk_assessment.level == 'High Risk (Level 3)' %}highlight{% endif %}">
+                                    <td style="text-align: center; padding-top: 5px;">29 to 39</td>
+                                    <td style="text-align: center;">High Risk (Level 3)</td>
+                                    <td style="text-align: center; padding-top: 5px;">1 year</td>
+                                    <td style="text-align: center; padding-top: 5px;">2 years</td>
+                                    <td style="text-align: center; padding-top: 5px;">Twice a month</td>
+                                </tr>
+                                <tr class="{% if risk_assessment.level == 'Very High Risk (Level 4)' %}highlight{% endif %}">
+                                    <td style="text-align: center;">40 and above</td>
+                                    <td style="text-align: center;">Very High Risk (Level 4)</td>
+                                    <td style="text-align: center; padding-top: 5px;">2 years</td>
+                                    <td style="text-align: center; padding-top: 5px;">3 years</td>
+                                    <td style="text-align: center; padding-top: 5px;">Twice a month</td>
+                                </tr>
+                            </table>
+                            
+                            <h1 class="section-title" style="font-size: 8pt; text-align: center;">CRIMINOGENIC NEEDS</h1>
+                            <p class="instruction" style="text-align: center; font-size: 7pt;">INSTRUCTION: Highlight the client's identified Risk Factor/s and Programmatic Intervention/s to be offered.</p>
+                            <table class="nested-table criminogenic-needs-table">
+                                <colgroup>
+                                    <col style="width: 40%">
+                                    <col style="width: 10%">
+                                    <col style="width: 10%">
+                                    <col style="width: 20%">
+                                    <col style="width: 20%">
+                                </colgroup>
+                                <tr style="text-align: center;">
+                                    <th style="text-align: center; padding-top: 4px;">Risk Factors</th>
+                                    <th style="text-align: center;">Highest Score</th>
+                                    <th style="text-align: center; padding-top: 4px;">Threshold</th>
+                                    <th style="text-align: center;">Client's Risk Score</th>
+                                    <th style="text-align: center;">Program to be Offered</th>
+                                </tr>
+                                {% for segment_id, data in segment_thresholds.items() %}
+                                    {% if segment_id != 5 %}
+                                    <tr class="{% if subtotals[segment_id] >= data.threshold %}highlight{% endif %}">
+                                        <td style="padding-top: 2px; padding-bottom: 2px;">{{ segment_titles[segment_id] }}</td>
+                                        <td style="text-align: center; padding-top: 3px; padding-bottom: 2px;">{{ data.highest_score }}</td>
+                                        <td style="text-align: center; padding-top: 3px; padding-bottom: 2px;">{{ data.threshold }}</td>
+                                        <td style="text-align: center; padding-top: 3px; padding-bottom: 2px;">{{ subtotals[segment_id] }}</td>
+                                        <td style="text-align: center; padding-top: 3px; padding-bottom: 2px;">
+                                            {% if subtotals[segment_id] >= data.threshold %}
+                                                {{ data.program }} ✓
+                                            {% else %}
+                                                Not required
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                    {% else %}
+                                    <!-- Education and Employment combined section -->
+                                    <tr class="{% if subtotals[5] >= data.threshold %}highlight{% endif %}">
+                                        <td>{{ segment_titles[5] }}</td>
+                                        <td style="text-align: center; padding-top: 3px; padding-bottom: 2px;">{{ data.highest_score }}</td>
+                                        <td style="text-align: center; padding-top: 3px; padding-bottom: 2px;">{{ data.threshold }}</td>
+                                        <td style="text-align: center; padding-top: 3px; padding-bottom: 2px;">{{ subtotals[5] }}</td>
+                                        <td style="text-align: center; padding-top: 3px; padding-bottom: 2px;">
+                                            {% if subtotals[5] >= data.threshold %}
+                                                {{ data.program }} ✓
+                                            {% else %}
+                                                Not required
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                    {% endif %}
+                                {% endfor %}
+                            </table>
+                        </div>
+                    </td>                    
+
+                </tr>
+
+            <!-- Notes section -->
+            <tr>
+                <td colspan="2">
+                    <div class="notes-section">
+                        <h3 style="font-size: 8pt; margin: 2px 0; padding-top: 0%;">NOTES AND IMPRESSIONS:</h3>
+                    <div class="notes-content" style="font-size: 8pt; margin: 0;">
+                        <div>{{ notes }}</div>
+                    </div>
+                    </div>
+                </td>
+            </tr>
+            </table>
+        </div>
+
+
+
+        <!-- Signature section -->
+        <div class="signature" style="margin-top: 4px; display: flex; flex-direction: column;">
+            <div style="width: 45%; align-self: flex-end; padding-right: 100px; padding-top: 5px;">
+                <p class="officer-name" style="font-size: 8pt; margin: 2px 0; text-align: center;">{{ officer_name }}</p>
+                <hr style="margin: 2px 0;">
+                <p class="position-text" style="font-size: 7pt; margin: 2px 0; white-space: nowrap;">Name & Position of Inv/Supvg Officer/Date</p>
+            </div>
+            <div style="padding-left: 100px;">
+                <div style="width: 100%; text-align: left; font-size: 8pt; font-weight: bold; margin-bottom: 4px;">
+                    NOTED:
+                </div>
+                <div style="width: 100%; text-align: center;">
+                    <p class="officer-name" style="font-size: 8pt; margin: 2px 0;">{{ chief_name }}</p>
+                    <hr style="margin: 2px 0;">
+                    <p class="position-text" style="font-size: 7pt; margin: 2px 0; white-space: nowrap;">Chief Probation Officer/Officer-in-Charge/Date</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
