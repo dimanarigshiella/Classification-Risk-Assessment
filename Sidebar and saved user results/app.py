@@ -63,7 +63,7 @@ google = oauth.register(
         'access_type': 'offline',
         'prompt': 'consent'
     },
-    redirect_uri=secrets.get('redirect_uri', 'http://127.0.0.1:5000/authorize')
+    redirect_uri=secrets.get('redirect_uri': 'https://classification-risk-assessment.onrender.com/authorize')
 )
 
 # Google Sheets integration
